@@ -1,0 +1,203 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'ostruct'
+require 'json'
+require 'erb'
+
+#
+# Extension of File
+#
+class File
+
+  #
+  # Normalize path
+  #
+  # @param path [String]
+  # @return [String] Normalizede path
+  #
+  def self.normalize(path)
+    path.sub(%r|/$|, '')
+  end
+end
+
+#
+# Enhancement of ERB
+#
+class ERBX < OpenStruct
+
+  # ref: http://stackoverflow.com/a/8955121
+
+  #
+  # Render template with given params
+  #
+  # @param template [String] Template string
+  # @param hash [Hash] Params for template
+  # @return [String] Rendered string
+  #
+  def self.render(template, hash) 
+    self.new(hash).render(template)
+  end
+
+  #
+  # Render template file with given params
+  #
+  # @param path [String] Path to template file
+  # @param hash [Hash] Params for template
+  # @return [String] Rendered string
+  #
+  def self.render_f(path, hash) 
+    self.new(hash).render_f(path)
+  end
+
+  #
+  # Render template with current params
+  #
+  # @param template [String] Template string
+  # @return [String] Rendered string
+  #
+  def render(template)
+    ERB.new(template).result(binding)
+  end
+
+  #
+  # Render template file with current params
+  #
+  # @param path [String] Path to template file
+  # @return [String] Rendered string
+  #
+  def render_f(path)
+    ERB.new(File.read(path)).result(binding)
+  end
+
+end
+
+#
+# Main application
+#
+class Application
+
+  #
+  # Run application
+  #
+  # @param args [Array<String>] CLI args
+  #
+  def run(args)
+    # parse
+    begin
+      context = self.parse(args)
+    rescue => e
+      abort e.message
+    end
+
+    # render
+    params =  {
+      :prefix  => context.prefix,
+      :bindir  => context.bindir, 
+      :compdir => context.compdir,
+    }
+
+    STDOUT.puts("input : #{context.in_file}")
+    STDOUT.puts("output: #{context.out_file}")
+    STDOUT.puts("params: #{JSON.pretty_generate(params)}")
+
+    File.write(context.out_file, ERBX.render_f(context.in_file, params))
+  end
+
+  #
+  # Parse arguments
+  #
+  # @param args [Array<String>] CLI args
+  #
+  def parse(args) 
+
+    context = Context.new
+
+    parser = OptionParser.new
+    parser.banner = "Usage: #{File.basename($0)} [options]"
+
+    parser.on('--prefix=directory', 'Parent directory to install programs') do |v|
+      context.prefix = v
+    end
+
+    parser.on('--bindir=directory', 'Directory to install programs') do |v|
+      context.bindir = v
+    end
+
+    parser.on('--compdir=directory', 'Directoy to install completion files for zsh')  do |v|
+      context.compdir = v
+    end
+
+    parser.on('--in-file=file', 'Input file') do |v|
+      context.in_file = v
+    end
+
+    parser.on('--out-file=file', 'Output file') do |v| 
+      context.out_file = v
+    end
+
+    parser.parse(args)
+
+    return context
+  end
+
+end
+
+#
+# Application context
+#
+class Context
+
+  attr_writer :prefix
+  attr_writer :bindir
+  attr_writer :compdir
+
+  attr_accessor :in_file
+  attr_accessor :out_file
+
+  #
+  # Initialize context
+  #
+  def initialize
+    @prefix  = "/usr/local"
+    @bindir  = nil
+    @compdir = nil
+
+    @in_file  = "Rakefile.in"
+    @out_file = "Rakefile"
+  end
+
+  #
+  # Get prefix
+  #
+  def prefix
+    File.normalize(@prefix)
+  end
+
+  #
+  # Get bindir
+  #
+  def bindir
+    if @bindir.nil?
+      File.normalize(File.join(@prefix, "/bin"))
+    else
+      File.normalize(@bindir)
+    end
+  end
+
+  #
+  # Get compdir
+  #
+  def compdir
+    if @compdir.nil?
+      File.normalize(File.join(@prefix, "/share/zsh-completions"))
+    else
+      File.normalize(@compdir)
+    end
+  end
+end
+
+#
+# Run application
+#
+Application.new.run(ARGV)

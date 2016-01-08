@@ -1,0 +1,195 @@
+#
+# Extension 
+#
+class File
+  #
+  # Join and fill path
+  #
+  def self.expand_join(*item)
+    File.expand_path(File.join(item))
+  end
+
+  #
+  # Get purename of file
+  #
+  def self.purename(path)
+    File.basename(path, File.extname(path))
+  end
+end
+
+module Kernel
+  #
+  # Execute command with verbose
+  #
+  def system_v(command)
+    STDERR.puts("==> #{command}")
+    Kernel.system(command)
+    Kernel.exit($?.exitstatus) unless $?.success?
+  end
+end
+
+#
+# Globals
+#
+def bindir_g
+  '<%= bindir %>'
+end
+def bindir_l
+  'bin'
+end
+
+def binfiles 
+  Dir.glob(File.join(bindir_l, '*'))
+end
+
+def compdir_g 
+  '<%= compdir %>'
+end
+
+def compdir_l 
+  'src/zsh-completions'
+end
+
+def compfiles 
+  Dir.glob(File.join(compdir_l, '*'))
+end
+
+def appdir_l 
+  'src/app'
+end
+
+def appfiles 
+  Dir.glob(File.join(appdir_l, '*.cr'))
+end
+
+def tmpdirs 
+  Dir.glob('**/.crystal')
+end
+
+#
+# Tasks
+#
+desc "Build all apps into #{File.expand_join(bindir_l)}"
+task :build => appfiles.map { |src| File.purename(src) }.map { |bin| "build:#{bin}" }
+
+namespace :build do
+  appfiles.each do |src|
+    bin = File.purename(src)
+    out = File.join(bindir_l, bin)
+
+    desc "Build #{bin} into #{File.expand_join(bindir_l)}"
+    task "#{bin}" do
+      Kernel.system_v("mkdir #{bindir_l}") unless File.exists?(bindir_l)
+      Kernel.system_v("crystal build --verbose --release -o #{out} #{src}")
+    end
+  end
+end
+
+desc "Install apps into #{File.expand_join(bindir_g)}"
+task :install do
+  # bin
+  binfiles
+    .map { |f| File.purename(f) }
+    .map { |b| [File.expand_join(bindir_l, b), File.expand_join(bindir_g, b)] }
+    .each do |src, dst|
+      Kernel.system_v("cp -v #{src} #{dst}") unless File.identical?(src, dst)
+    end
+
+  # comp
+  compfiles
+    .map { |f| File.purename(f) }
+    .map { |c| [File.expand_join(compdir_l, c), File.expand_join(compdir_g, c)] }
+    .each do |src, dst|
+      Kernel.system_v("cp -v #{src} #{dst}") unless File.identical?(src, dst)
+    end
+end
+
+desc "Uninstall apps from #{File.expand_join(bindir_g)}"
+task :uninstall do
+  # bin
+  binfiles
+    .map { |f| File.purename(f) }
+    .map { |b| File.expand_join(bindir_g, b) }
+    .each do |dst|
+      Kernel.system_v("rm -v #{dst}") if File.exists?(dst)
+    end
+
+  # comp
+  compfiles
+    .map { |f| File.purename(f) }
+    .map { |c| File.expand_join(compdir_g, c) }
+    .each do |dst|
+      Kernel.system_v("rm -v #{dst}") if File.exists?(dst)
+    end
+end
+
+desc "Link apps into #{File.expand_join(bindir_g)}"
+task :link do
+  # bin
+  binfiles
+    .map { |f| File.purename(f) }
+    .map { |b| [File.expand_join(bindir_l, b), File.expand_join(bindir_g, b)] }
+    .each do |src, dst|
+      Kernel.system_v("ln -sfv #{src} #{dst}") unless File.identical?(src, dst)
+    end
+
+  # comp
+  compfiles
+    .map { |f| File.purename(f) }
+    .map { |c| [File.expand_join(compdir_l, c), File.expand_join(compdir_g, c)] }
+    .each do |src, dst|
+      Kernel.system_v("ln -sfv #{src} #{dst}") unless File.identical?(src, dst)
+    end
+end
+
+desc "Unlink apps from #{File.expand_join(bindir_g)}"
+task :unlink do
+  # bin
+  binfiles
+    .map { |f| File.purename(f) }
+    .map { |b| File.expand_join(bindir_g, b) }
+    .each do |dst|
+      Kernel.system_v("rm -v #{dst}") if File.exists?(dst)
+    end
+
+  # comp
+  compfiles
+    .map { |f| File.purename(f) }
+    .map { |c| File.expand_join(compdir_g, c) }
+    .each do |dst|
+      Kernel.system_v("rm -v #{dst}") if File.exists?(dst)
+    end
+end
+
+desc "Show status of apps in #{File.expand_join(bindir_g)}"
+task :status do
+  # bin
+  binfiles
+    .map { |f| File.purename(f) }
+    .map { |b| File.expand_join(bindir_g, b) }
+    .each do |dst|
+      Kernel.system("ls -lFG #{dst}") if File.exists?(dst)
+    end
+
+  # comp
+  compfiles
+    .map { |f| File.purename(f) }
+    .map { |c| File.expand_join(compdir_g, c) }
+    .each do |dst|
+      Kernel.system("ls -lFG #{dst}") if File.exists?(dst)
+    end
+end
+
+desc "Cleanup apps and tempfiles"
+task :clean do
+  targets = tmpdirs + [File.join(bindir_l, '*')]
+  Kernel.system_v("rm -rf #{targets.join(' ')}")
+end
+
+desc "Run test"
+task :test do
+  Kernel.system_v("crystal spec --verbose")
+end
+
+task :default => 'build'
+
