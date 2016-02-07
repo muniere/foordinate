@@ -5,9 +5,16 @@ Utility commands to arrange files with Crystal (http://crystal-lang.org/)
 ## Requirements
 
 - [Crsytal](http://crystal-lang.org/) >= 0.10.0
-- [Rake](https://github.com/ruby/rake) >= 10.4.0
 
 ## Installation
+
+### Homebrew
+
+```bash
+$ brew install muniere/triv/farrange
+```
+
+### Manual
 
 ```bash
 # clone
