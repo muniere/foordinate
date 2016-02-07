@@ -1,6 +1,6 @@
-# filidy
+# farrange
 
-Utility commands to tidy files with Crystal (http://crystal-lang.org/)
+Utility commands to arrange files with Crystal (http://crystal-lang.org/)
 
 ## Requirements
 
@@ -11,10 +11,10 @@ Utility commands to tidy files with Crystal (http://crystal-lang.org/)
 
 ```bash
 # clone
-$ git clone git@github.com:muniere/filidy.git
+$ git clone git@github.com:muniere/farrange.git
 
 # install
-$ cd filidy
+$ cd farrange
 $ ./configure --prefix=/usr/local
 $ rake && rake install
 
