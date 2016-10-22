@@ -6,12 +6,24 @@ require "logger"
 class Rename
 
   #
+  # Exception
+  #
+  class ConflictionException < Exception
+
+    property rules : Array(Rule)
+
+    def initialize(@rules = [] of Rule)
+      super("Conflicions were detected")
+    end
+  end
+
+  #
   # Options
   #
   class Options
 
-    property dry_run   :: Bool
-    property overwrite :: Bool
+    property dry_run   : Bool
+    property overwrite : Bool
 
     def initialize(
       @dry_run   = false,
@@ -23,7 +35,7 @@ class Rename
   #
   # Properties
   #
-  property logger :: Logger?
+  property logger : Logger?
 
   #
   # Initialize action
@@ -47,11 +59,7 @@ class Rename
     conflicts = rules.select(&.conflicts?)
 
     if !options.overwrite && !conflicts.empty?
-      conflicts.each do |rule|
-        @logger.try(&.error("File already exists: #{rule.dst.path}"))
-      end
-
-      raise Exception.new
+      raise ConflictionException.new(rules: conflicts)
     end
 
     #
@@ -82,9 +90,9 @@ class Rename
   #
   class NumberizeOptions < Options
 
-    property length  :: Int
-    property start   :: Int
-    property prefix  :: String?
+    property length  : Int32
+    property start   : Int32
+    property prefix  : String?
 
     def initialize(
       @length    = 3, 
@@ -140,8 +148,8 @@ class Rename
   #
   class RandomizeOptions < Options
 
-    property length  :: Int
-    property prefix  :: String?
+    property length  : Int32
+    property prefix  : String?
 
     def initialize(
       @length    = 10, 
@@ -215,7 +223,7 @@ class Rename
   # @param depth Depth of path names
   # @return Pretty formatted string
   #
-  protected def pretty(rules : Array(Rule), depth = nil : Int?) : String
+  protected def pretty(rules : Array(Rule), depth : Int? = nil) : String
     if !depth.nil?
       pretty_rules = rules.map { |rule|
         next Rule.new(
@@ -247,8 +255,8 @@ class Rename::Rule
   #
   # Properties
   #
-  property src :: Pathname
-  property dst :: Pathname
+  property src : Pathname
+  property dst : Pathname
 
   #
   # Initialize action
@@ -257,8 +265,8 @@ class Rename::Rule
   # @param dst
   #
   def initialize(
-    @src = nil : Pathname,
-    @dst = nil : Pathname
+    @src = nil,
+    @dst = nil,
   )
   end
 

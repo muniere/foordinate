@@ -19,7 +19,7 @@ class File
   # @param padding 
   # @return Prefix of file
   #
-  def self.prefix(path : String, padding = nil : String?) : String?
+  def self.prefix(path : String, padding : String? = nil) : String?
 
     purename = self.purename(path)
 
@@ -47,7 +47,7 @@ class File
   # @param length 
   # @return Path with first n elements
   #
-  def self.head(path : String, length = 1 : Int) : String
+  def self.head(path : String, length : Int = 1) : String
 
     absolute? = path.starts_with?(File::SEPARATOR)
 
@@ -68,7 +68,7 @@ class File
   # @param length 
   # @return Path with last n elements
   #
-  def self.tail(path, length = 1 : Int)
+  def self.tail(path, length : Int = 1)
 
     absolute? = path.starts_with?(File::SEPARATOR)
 

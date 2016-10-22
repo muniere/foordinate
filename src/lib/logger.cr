@@ -4,7 +4,7 @@ require "colorize"
 #
 # Extension of standard Logger class
 #
-class Logger(T)
+class Logger
 
   #
   # Construct a new logger
@@ -12,12 +12,13 @@ class Logger(T)
   # @param io IO for logger
   # @return New logger
   #
-  def self.create(io : T) : Logger
+  def self.create(io : IO) : Logger
     logger = Logger.new(io)
-    logger.formatter = -> (severity : String, datetime : Time, progname : String, message : String, io : IO) {
+    logger.formatter = Logger::Formatter.new do |severity, datetime, progname, message|
       c = self.color(Severity.parse?(severity) || Severity::DEBUG)
       io << "[#{severity.ljust(5)}] #{message}".colorize(c)
-    }
+    end
+
     return logger
   end
 

@@ -3,7 +3,7 @@
 #
 class Pathname
 
-  getter path :: String
+  getter path : String
 
   def initialize(@path : String)
   end

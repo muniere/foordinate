@@ -25,9 +25,17 @@ class Application
     end
 
     # rename
-    rename = Rename.new
-    rename.logger = context.logger
-    rename.randomize(context.pathnames, options: context.options)
+    begin
+      rename = Rename.new
+      rename.logger = context.logger
+      rename.randomize(context.pathnames, options: context.options)
+    rescue e : Rename::ConflictionException
+      e.rules.each do |r|
+        context.logger.error "File already exists: #{r.dst.path}"
+      end
+    rescue e 
+      context.logger.error(e)
+    end
   end
 
   #
@@ -69,7 +77,7 @@ class Application
       exit 0
     end
 
-    argv = parser.parse(args) as Array(String)
+    argv = parser.parse(args) || [] of String
 
     # logger
     if context.verbose > 0
@@ -95,13 +103,13 @@ end
 struct Context
 
   # args
-  property pathnames :: Array(Pathname)
+  property pathnames : Array(Pathname)
 
   # opts
-  property options :: Rename::RandomizeOptions
-  property dry_run :: Bool
-  property verbose :: Int
-  property logger  :: Logger
+  property options : Rename::RandomizeOptions
+  property dry_run : Bool
+  property verbose : Int32
+  property logger  : Logger
 
   #
   # Initialize context

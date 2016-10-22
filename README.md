@@ -1,27 +1,27 @@
-# farrange
+# fileutils
 
 Utility commands to arrange files with Crystal (http://crystal-lang.org/)
 
 ## Requirements
 
-- [Crsytal](http://crystal-lang.org/) >= 0.10.0
+- [Crsytal](http://crystal-lang.org/) >= 0.19.4
 
 ## Installation
 
 ### Homebrew
 
 ```bash
-$ brew install muniere/triv/farrange
+$ brew install muniere/triv/fileutils
 ```
 
 ### Manual
 
 ```bash
 # clone
-$ git clone git@github.com:muniere/farrange.git
+$ git clone git@github.com:muniere/fileutils.git
 
 # install
-$ cd farrange
+$ cd fileutils
 $ ./configure --prefix=/usr/local
 $ rake && rake install
 

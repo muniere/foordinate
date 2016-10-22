@@ -10,8 +10,8 @@ class Count
   #
   class Options
 
-    property all     :: Bool
-    property pattern :: String?
+    property all     : Bool
+    property pattern : String?
 
     def initialize(
       @all     = false,
@@ -28,8 +28,8 @@ class Count
   #
   # Properties
   #
-  property io     :: IO
-  property logger :: Logger?
+  property io     : IO
+  property logger : Logger?
 
   #
   # Initialize action

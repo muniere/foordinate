@@ -62,7 +62,7 @@ class Application
       exit 0
     end
 
-    argv = parser.parse(args) as Array(String)
+    argv = parser.parse(args) || [] of String
 
     # logger
     if context.verbose > 0
@@ -90,13 +90,13 @@ end
 struct Context
 
   # args
-  property pathnames :: Array(Pathname)
+  property pathnames : Array(Pathname)
 
   # opts
-  property all     :: Bool
-  property pattern :: String
-  property verbose :: Int
-  property logger  :: Logger
+  property all     : Bool
+  property pattern : String?
+  property verbose : Int32
+  property logger  : Logger
 
   #
   # Initialize context
