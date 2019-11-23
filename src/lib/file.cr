@@ -49,12 +49,12 @@ class File
   #
   def self.head(path : String, length : Int = 1) : String
 
-    absolute? = path.starts_with?(File::SEPARATOR)
+    is_absolute = path.starts_with?(File::SEPARATOR)
 
     splitted = path.sub(%r(^/), "").split(File::SEPARATOR)
     selected = splitted[0..Math.min(length - 1, splitted.size - 1)]
 
-    if absolute?
+    if is_absolute
       return File.join(selected.insert(0, File::SEPARATOR.to_s))
     else
       return File.join(selected)
@@ -70,12 +70,12 @@ class File
   #
   def self.tail(path, length : Int = 1)
 
-    absolute? = path.starts_with?(File::SEPARATOR)
+    is_absolute = path.starts_with?(File::SEPARATOR)
 
     splitted = path.sub(%r(^/), "").split(File::SEPARATOR)
     selected = splitted[Math.max(splitted.size - length, 0)..-1]
 
-    if absolute?
+    if is_absolute
       return File.join(selected.insert(0, File::SEPARATOR.to_s))
     else
       return File.join(selected)

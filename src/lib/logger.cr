@@ -15,8 +15,8 @@ class Logger
   def self.create(io : IO) : Logger
     logger = Logger.new(io)
     logger.formatter = Logger::Formatter.new do |severity, datetime, progname, message|
-      c = self.color(Severity.parse?(severity) || Severity::DEBUG)
-      io << "[#{severity.ljust(5)}] #{message}".colorize(c)
+      c = self.color(severity)
+      io << "[#{severity.to_s.ljust(5)}] #{message}".colorize(c)
     end
 
     return logger

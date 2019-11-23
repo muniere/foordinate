@@ -1,27 +1,27 @@
-# fileutils
+# foordinate
 
 Utility commands to arrange files with Crystal (http://crystal-lang.org/)
 
 ## Requirements
 
-- [Crsytal](http://crystal-lang.org/) >= 0.19.4
+- [Crsytal](http://crystal-lang.org/) >= 0.31.0
 
 ## Installation
 
 ### Homebrew
 
 ```bash
-$ brew install muniere/triv/fileutils
+$ brew install muniere/triv/foordinate
 ```
 
 ### Manual
 
 ```bash
 # clone
-$ git clone git@github.com:muniere/fileutils.git
+$ git clone git@github.com:muniere/foordinate.git
 
 # install
-$ cd fileutils
+$ cd foordinate
 $ ./configure --prefix=/usr/local
 $ rake && rake install
 
